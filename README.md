@@ -1,11 +1,6 @@
-## My Project
+## multi-az-db-cluster-sample-for-amazon-rds
 
-TODO: Fill this README out!
 
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
 
 ## Security
 
