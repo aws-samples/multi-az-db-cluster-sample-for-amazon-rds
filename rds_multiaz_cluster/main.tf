@@ -25,7 +25,6 @@ resource "aws_secretsmanager_secret_version" "password" {
 # Locals
 #########
 
-
 locals {
   name   = var.name
   region = var.region
@@ -81,33 +80,27 @@ module "vpc" {
 
   tags                                        = local.tags
 }
-
-
 ################################################################################
-# Supporting Resources
+# Subnet Group from Module
 ################################################################################
-
-data "aws_security_group" "default" {
-  name                                        = "default"
-  vpc_id                                      = module.vpc.vpc_id
+module "subnet_group" { 
+  source                                      = "../modules/rds_modules/rds_db_subnet_group"
+  name                                        = local.name
+  subnet_ids                                  = module.vpc.private_subnets
 }
 
-resource "aws_security_group" "vpc_tls" {
-  name_prefix                                 = "${local.name}-vpc_tls"
-  description                                 = "Allow TLS inbound traffic"
-  vpc_id                                      = module.vpc.vpc_id
+################################################################################
+# Option Group from Module not supported in PostgreSQL
+################################################################################
 
-  ingress {
-    description                               = "TLS from VPC"
-    from_port                                 = 5432
-    to_port                                   = 5432
-    protocol                                  = "tcp"
-    cidr_blocks                               = [module.vpc.vpc_cidr_block]
-  }
-
-  tags                                        = local.tags
+################################################################################
+# Cluster Parameter Group from Module
+################################################################################
+module "db_cluster_parameter_group" {
+  source                                      = "../modules/rds_modules/rds_db_parameter_group"
+  name                                        = local.name
+  family                                      = "${var.engine}${split(".",var.engine == "postgres" ? var.engine_version_pg : var.engine_version_mysql)[0]}"
 }
-
 ################################################################################
 # RDS Multi-AZ DB Cluster Module
 ################################################################################
@@ -119,11 +112,10 @@ module "db_cluster" {
   
   engine                                      = var.engine
   engine_version                              = var.engine == "postgres" ? var.engine_version_pg : var.engine_version_mysql
-  
-  #family                                     = "postgres13" # DB parameter group
-  #major_engine_version                       = "13"         # DB option group
  
   db_cluster_instance_class                   = var.db_cluster_instance_class
+
+  db_cluster_parameter_group_name             = module.db_cluster_parameter_group.db_parameter_group_id
 
   allocated_storage                           = var.allocated_storage
   iops                                        = var.iops
@@ -136,8 +128,8 @@ module "db_cluster" {
 
   snapshot_identifier                         = var.snapshot_identifier
 
-  db_subnet_group_name                        = module.vpc.database_subnet_group
-  #vpc_security_group_ids                     = [module.this.default_security_group_id]
+  db_subnet_group_name                        = module.subnet_group.db_subnet_group_id
+  vpc_security_group_ids                      = [module.vpc.default_security_group_id]
 
   preferred_maintenance_window                = var.preferred_maintenance_window
   preferred_backup_window                     = var.preferred_backup_window

@@ -83,5 +83,5 @@ output "db_instance_cloudwatch_log_groups" {
 
 output "snapshot_identifier" {
   description = "Snapshot used for restoring the Multi-AZ DB Cluster"
-  value       = data.aws_db_cluster_snapshot.db_snapshot.db_cluster_snapshot_arn
+  value       = data.aws_db_cluster_snapshot.db_cluster_snapshot.id
 }

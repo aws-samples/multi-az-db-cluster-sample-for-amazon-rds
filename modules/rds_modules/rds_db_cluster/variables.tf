@@ -144,7 +144,7 @@ variable "final_snapshot_identifier_prefix" {
 variable "vpc_security_group_ids" {
   description = "List of VPC security groups to associate"
   type        = list(string)
-  default     = []
+  default     = null
 }
 
 variable "db_subnet_group_name" {
@@ -153,7 +153,7 @@ variable "db_subnet_group_name" {
   default     = null
 }
 
-variable "parameter_group_name" {
+variable "db_cluster_parameter_group_name" {
   description = "Name of the DB parameter group to associate"
   type        = string
   default     = null

@@ -41,7 +41,7 @@ locals {
 ################################################################################
 
 module "vpc" {
-  source                                      = "../modules/rds_vpc"
+  source                                      = "../modules/rds_modules/rds_vpc"
 
   name                                        = local.name
   cidr                                        = var.vpccidr
@@ -82,28 +82,12 @@ module "vpc" {
 }
 
 ################################################################################
-# Supporting Resources
+# Subnet Group from Module
 ################################################################################
-
-data "aws_security_group" "default" {
-  name                                        = "default"
-  vpc_id                                      = module.vpc.vpc_id
-}
-
-resource "aws_security_group" "vpc_tls" {
-  name_prefix                                 = "${local.name}-vpc_tls"
-  description                                 = "Allow TLS inbound traffic"
-  vpc_id                                      = module.vpc.vpc_id
-
-  ingress {
-    description                               = "TLS from VPC"
-    from_port                                 = 5432
-    to_port                                   = 5432
-    protocol                                  = "tcp"
-    cidr_blocks                               = [module.vpc.vpc_cidr_block]
-  }
-
-  tags = local.tags
+module "subnet_group" { 
+  source                                      = "../modules/rds_modules/rds_db_subnet_group"
+  name                                        = local.name
+  subnet_ids                                  = module.vpc.private_subnets
 }
 
 ################################################################################
@@ -118,9 +102,6 @@ module "db" {
   engine                                      = var.engine
   engine_version                              = var.engine == "postgres" ? var.engine_version_pg : var.engine_version_mysql
   
-  #family                                     = "postgres13" # DB parameter group
-  #major_engine_version                       = "13"         # DB option group
-  
   instance_class                              = var.instance_class
   allocated_storage                           = var.allocated_storage
   max_allocated_storage                       = var.max_allocated_storage
@@ -132,8 +113,8 @@ module "db" {
 
   multi_az                                    = var.multi_az
 
-  #db_subnet_group_name                       = module.database.name
-  #vpc_security_group_ids                     = [module.this.default_security_group_id]
+  db_subnet_group_name                       = module.subnet_group.db_subnet_group_id
+  vpc_security_group_ids                     = [module.vpc.default_security_group_id]
 
   maintenance_window                          = var.maintenance_window
   backup_window                               = var.backup_window

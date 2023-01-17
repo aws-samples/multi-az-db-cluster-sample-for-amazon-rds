@@ -41,9 +41,9 @@ locals {
 # DB Snapshot Fetch
 ######################
 
-data "aws_db_cluster_snapshot" "db_snapshot" {
+data "aws_db_cluster_snapshot" "db_cluster_snapshot" {
   most_recent = true
-  db_cluster_identifier = var.snapshot_db_instance_identifer
+  db_cluster_identifier = var.snapshot_db_cluster_identifer
 }
 
 ################################################################################
@@ -51,7 +51,7 @@ data "aws_db_cluster_snapshot" "db_snapshot" {
 ################################################################################
 
 module "vpc" {
-  source                                        = "../modules/rds_vpc"
+  source                                        = "../modules/rds_modules/rds_vpc"
 
   name                                          = local.name
   cidr                                          = var.vpccidr
@@ -93,28 +93,24 @@ module "vpc" {
 
 
 ################################################################################
-# Supporting Resources
+# Subnet Group from Module
+################################################################################
+module "subnet_group" { 
+  source                                      = "../modules/rds_modules/rds_db_subnet_group"
+  name                                        = local.name
+  subnet_ids                                  = module.vpc.private_subnets
+}
+################################################################################
+# Option Group from Module not supported in PostgreSQL
 ################################################################################
 
-data "aws_security_group" "default" {
-  name                                          = "default"
-  vpc_id                                        = module.vpc.vpc_id
-}
-
-resource "aws_security_group" "vpc_tls" {
-  name_prefix                                   = "${local.name}-vpc_tls"
-  description                                   = "Allow TLS inbound traffic"
-  vpc_id                                        = module.vpc.vpc_id
-
-  ingress {
-    description                                 = "TLS from VPC"
-    from_port                                   = 5432
-    to_port                                     = 5432
-    protocol                                    = "tcp"
-    cidr_blocks                                 = [module.vpc.vpc_cidr_block]
-  }
-
-  tags                                          = local.tags
+################################################################################
+# Cluster Parameter Group from Module
+################################################################################
+module "db_cluster_parameter_group" {
+  source                                      = "../modules/rds_modules/rds_db_parameter_group"
+  name                                        = local.name
+  family                                      = "${var.engine}${split(".",var.engine == "postgres" ? var.engine_version_pg : var.engine_version_mysql)[0]}"
 }
 
 ################################################################################
@@ -128,11 +124,10 @@ module "db_cluster" {
   
   engine                                        = var.engine
   engine_version                                = var.engine == "postgres" ? var.engine_version_pg : var.engine_version_mysql
-  
-  #family                                       = "postgres13" # DB parameter group
-  #major_engine_version                         = "13"         # DB option group
  
   db_cluster_instance_class                     = var.db_cluster_instance_class
+
+  db_cluster_parameter_group_name                = module.db_cluster_parameter_group.db_parameter_group_id
 
   allocated_storage                             = var.allocated_storage
   iops                                          = var.iops
@@ -141,10 +136,10 @@ module "db_cluster" {
   master_username                               = var.master_username
   master_password                               = (var.snapshot_identifier != "") ? null : (var.master_password == "" ? aws_secretsmanager_secret.password.id : var.master_password)
 
-  snapshot_identifier                           = "${data.aws_db_cluster_snapshot.db_snapshot.db_cluster_snapshot_arn}"
+  snapshot_identifier                           = "${data.aws_db_cluster_snapshot.db_cluster_snapshot.id}"
 
-  #db_subnet_group_name                         = var.db_subnet_group_name
-  #vpc_security_group_ids                       = [module.this.default_security_group_id]
+  db_subnet_group_name                         = module.subnet_group.db_subnet_group_id
+  vpc_security_group_ids                       = [module.vpc.default_security_group_id]
 
   skip_final_snapshot                           = var.skip_final_snapshot
   deletion_protection                           = var.deletion_protection
