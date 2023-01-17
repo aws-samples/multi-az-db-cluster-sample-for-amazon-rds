@@ -8,7 +8,7 @@ locals {
   # Use `local.vpc_id` to give a hint to Terraform that subnets should be deleted before secondary CIDR blocks can be free!
   vpc_id = try(aws_vpc_ipv4_cidr_block_association.this[0].vpc_id, aws_vpc.this[0].id, "")
 
-  create_vpc = var.create_vpc && var.putin_khuylo
+  create_vpc = var.create_vpc
 }
 
 ################################################################################
@@ -383,22 +383,6 @@ resource "aws_subnet" "database" {
     },
     var.tags,
     var.database_subnet_tags,
-  )
-}
-
-resource "aws_db_subnet_group" "database" {
-  count = local.create_vpc && length(var.database_subnets) > 0 && var.create_database_subnet_group ? 1 : 0
-
-  name        = lower(coalesce(var.database_subnet_group_name, var.name))
-  description = "Database subnet group for ${var.name}"
-  subnet_ids  = aws_subnet.database[*].id
-
-  tags = merge(
-    {
-      "Name" = lower(coalesce(var.database_subnet_group_name, var.name))
-    },
-    var.tags,
-    var.database_subnet_group_tags,
   )
 }
 

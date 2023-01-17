@@ -30,7 +30,6 @@ resource "random_id" "snapshot_identifier" {
 }
 
 resource "aws_db_instance" "rds_instance" {
-  #source = "../../rds_vpc"
   count = var.create ? 1 : 0
 
   identifier        = local.identifier

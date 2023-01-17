@@ -128,16 +128,6 @@ output "database_subnets_ipv6_cidr_blocks" {
   value       = compact(aws_subnet.database[*].ipv6_cidr_block)
 }
 
-output "database_subnet_group" {
-  description = "ID of database subnet group"
-  value       = try(aws_db_subnet_group.database[0].id, "")
-}
-
-output "database_subnet_group_name" {
-  description = "Name of database subnet group"
-  value       = try(aws_db_subnet_group.database[0].name, "")
-}
-
 output "public_route_table_ids" {
   description = "List of IDs of public route tables"
   value       = aws_route_table.public[*].id

@@ -5,7 +5,7 @@ locals {
   description = coalesce(var.description, format("%s parameter group", var.name))
 }
 
-resource "aws_db_parameter_group" "this" {
+resource "aws_rds_cluster_parameter_group" "this" {
   count = var.create ? 1 : 0
 
   name        = local.name

@@ -1,7 +1,7 @@
 variable "region" {
   description = "Mention the refion you want to deploy the resources"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "name" {
@@ -280,7 +280,7 @@ variable "snapshot_identifier" {
   default     = ""
 }
 
-variable "snapshot_db_instance_identifer" {
+variable "snapshot_db_cluster_identifer" {
   description = "id of snapshot to restore. If you do not want to restore a db, leave the default empty string."
   type        = string
   #default     = ""

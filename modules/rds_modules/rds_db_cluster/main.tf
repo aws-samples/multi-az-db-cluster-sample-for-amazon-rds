@@ -21,11 +21,9 @@ resource "random_id" "snapshot_identifier" {
 
 
 resource "aws_rds_cluster" "rds_cluster" {
-  #source = "../../rds_vpc"
   count = var.create ? 1 : 0
 
   cluster_identifier = var.cluster_identifier
-  #cluster_identifier_prefix = var.cluster_identifier_prefix
 
   engine            = var.engine
   engine_version    = var.engine_version
@@ -44,11 +42,11 @@ resource "aws_rds_cluster" "rds_cluster" {
 
   vpc_security_group_ids = var.vpc_security_group_ids
   db_subnet_group_name   = var.db_subnet_group_name
-  #parameter_group_name   = var.parameter_group_name
+  db_cluster_parameter_group_name   = var.db_cluster_parameter_group_name
+  
+  #Option group is not supported in PostgreSQL
   #option_group_name      = var.option_group_name
   network_type           = var.network_type
-
-  #availability_zones   = var.availability_zone
 
   iops                = var.iops
 
