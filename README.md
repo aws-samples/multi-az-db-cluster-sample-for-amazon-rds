@@ -1,9 +1,13 @@
 <!-- BEGIN_TF_DOCS -->
-> Note: This module is in alpha state and is likely to contain bugs and updates may introduce breaking changes. It is not recommended for production use at this time.
 
-# Terraform Amazon RDS
+
+# Terraform Module for Amazon RDS for PostgreSQL and MySQL 
 
 Terraform module for automating deployment of Amazon RDS PostgreSQL & MySQL databases with Multi-AZ DB Cluster and also related resources following AWS best practices.
+
+## High level architecture of Multi-AZ DB Cluster
+![Amazon RDS Multi-AZ Deployment Option With Two Readable Standby Instances](https://d2908q01vomqb2.cloudfront.net/da4b9237bacccdf19c0760cab7aec4a8359010b0/2022/02/15/dbblog-1927-image001.png)
+
 
 ## Supported Features
 
