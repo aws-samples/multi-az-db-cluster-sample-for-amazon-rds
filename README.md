@@ -14,6 +14,66 @@ Terraform module for automating deployment of Amazon RDS PostgreSQL & MySQL data
 - Multi-AZ DB Cluster
 - Multi-AZ DB Instance
 
+## Module Layout
+```
+.
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+├── modules
+│   └── rds_modules
+│       ├── rds_db_cluster
+│       │   ├── README.md
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   ├── variables.tf
+│       │   └── versions.tf
+│       ├── rds_db_instance
+│       │   ├── README.md
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   ├── variables.tf
+│       │   └── versions.tf
+│       ├── rds_db_option_group
+│       │   ├── README.md
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   ├── variables.tf
+│       │   └── versions.tf
+│       ├── rds_db_parameter_group
+│       │   ├── README.md
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   ├── variables.tf
+│       │   └── versions.tf
+│       ├── rds_db_subnet_group
+│       │   ├── README.md
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   ├── variables.tf
+│       │   └── versions.tf
+│       └── rds_vpc
+│           ├── main.tf
+│           ├── outputs.tf
+│           └── variables.tf
+├── rds_multiaz_cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── variables.tf
+│   └── versions.tf
+├── rds_multiaz_instance
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── variables.tf
+│   └── versions.tf
+└── rds_multiaz_to_multiaz_cluster
+    ├── main.tf
+    ├── outputs.tf
+    ├── variables.tf
+    └── versions.tf
+```
+
 ## Deployment Procedure
 
 To deploy the Terraform Amazon RDS module, do the following:
